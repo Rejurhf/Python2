@@ -8,6 +8,71 @@ import os
 from bs4 import BeautifulSoup
 import requests
 
+config = {}
+
+def fetch_url():
+    url = _url.get()
+    config['images'] = []
+    _images.set(())     # initialized as an empty tuple
+    try:
+        page = requests.get(url)
+    except requests.RequestException as rex:
+        _sb(str(rex))
+    else:
+        soup = BeautifulSoup(page.content, 'html.parser')
+        images = fetch_images(soup, url)
+        if images:
+            _images.set(touple(img['name'] for img in images))
+            _sb('Images found: {}'.format(len(images)))
+        else:
+            _sb('No images found')
+        config['images'] = images
+
+def fetch_images(soup, base_url):
+    images = []
+    for img in soup.findAll('img'):
+        src = img.get('src')
+        img_url = ('{base_url}/{src}'.format(base_url=base_url, src=src))
+        name = img_url.split('/')[-1]
+        images.append(dict(name=name, url=img_url))
+    return images
+
+def save():
+    if not config.get('images'):
+        _alert('No imsges to save')
+        return
+
+    if _save_method.get() == 'img':
+        dirname = filedialog.askdirectory(mustexist=True)
+        _save_images(dirname)
+    else:
+        filename = filedialog.asksaveasfilename(
+            initialfile='images.json', filetypes=[('JSON', '.json')])
+        _save_json(filename)
+
+def _save_images(dirname):
+    if dirname and config.get('images'):
+        for img in config['images']:
+            img_data = requests.get(img['url']).content
+            filename = os.path.join(dirname, img['name'])
+            with open(filename, 'wb') as f:
+                f.write(img_data)
+        _alert('Done')
+
+def _save_json(filename):
+    if filename and config.get('images'):
+        data = {}
+        for img in config['images']:
+            img_data = requests.get(img['url']).content
+            b64_img_data = base64.b64b64encode(img_data)
+            str_img_data = b64_img_data.decode('utf-8')
+            data[img['name']] = str_img_data
+
+        with open(filename, 'w') as ijson:
+            ijson.write(json.dumps(data))
+        _alert('Done')
+
+
 if __name__ == "__main__":
     _root = Tk()
     _root.title('Scrape app')
@@ -61,13 +126,3 @@ if __name__ == "__main__":
     _status_msg.set('Type a URL to start scraping...')
     _status = ttk.Label(_status_frame, textvariable=_status_msg, anchor=W)
     _status.grid(row=0, column=0, sticky(E, W))
-
-
-    parser = argparse.ArgumentParser(description='Scrape a webpage.')
-    parser.add_argument('-t', '--type', choices=['all', 'png', 'jpg'],
-        default='all', help='The image type we want to scrape.')
-    parser.add_argument('-f', '--format', choices=['img', 'json'],
-        default='img', help='The format images are saved to.')
-    parser.add_argument('url', help='The URL we want to scrape for images.')
-    args = parser.parse_args()
-    scrape(args.url, args.format, args.type)
