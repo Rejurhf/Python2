@@ -1,6 +1,7 @@
 # Rejurhf
 # 18.10.2018
 
+from tkinter import *
 from tkinter import ttk, filedialog, messagebox
 import base64
 import json
@@ -72,6 +73,11 @@ def _save_json(filename):
             ijson.write(json.dumps(data))
         _alert('Done')
 
+def _sb(msg):
+    _status_msg.set(msg)
+
+def _alert(msg):
+    messagebox.showinfo(message=msg)
 
 if __name__ == "__main__":
     _root = Tk()
@@ -83,12 +89,12 @@ if __name__ == "__main__":
     _url_frame.columnconfigure(0, weight=1)
     _url_frame.rowconfigure(0, weight=1)
     _url = StringVar()
-    _url.set('http://localhost8000')
+    _url.set('http://localhost:8001/simple_server/')
     _url_entry = ttk.Entry(_url_frame, width=40, textvariable=_url)
     _url_entry.grid(row=0, column=0, sticky=(E, W, S, N), padx=5)
 
     _fetch_btn = ttk.Button(_url_frame, text='Fetch info', command=fetch_url)
-    _fetch_btn.grid(row=0, column, sticky=W, padx=5)
+    _fetch_btn.grid(row=0, column=1, sticky=W, padx=5)
 
     _img_frame = ttk.LabelFrame(_mainframe, text='Content', padding='9 0 0 0')
     _img_frame.grid(row=1, column=0, sticky=(N,S,E,W))
@@ -125,4 +131,5 @@ if __name__ == "__main__":
     _status_msg = StringVar()
     _status_msg.set('Type a URL to start scraping...')
     _status = ttk.Label(_status_frame, textvariable=_status_msg, anchor=W)
-    _status.grid(row=0, column=0, sticky(E, W))
+    _status.grid(row=0, column=0, sticky=(E, W))
+    _root.mainloop()
