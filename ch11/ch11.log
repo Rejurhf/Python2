@@ -1,0 +1,10 @@
+[11/20/2018 09:51:23 AM] INFO:Starting to process `mylist`...
+[11/20/2018 09:51:23 AM] DEBUG:Value at position 0 is 1
+[11/20/2018 09:51:23 AM] DEBUG:Value at position 1 is 2
+[11/20/2018 09:51:23 AM] DEBUG:Value at position 2 is 3
+[11/20/2018 09:51:23 AM] ERROR:Faulty position: 3
+Traceback (most recent call last):
+  File "log.py", line 15, in <module>
+    position, mylist[position]))
+IndexError: list index out of range
+[11/20/2018 09:51:23 AM] INFO:Done parsing `mylist`.
